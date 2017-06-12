@@ -6,6 +6,7 @@
 
 void togDebug();
 void setFileName();
+void setUnitSize();
 
 typedef struct func{
   char *name;
@@ -23,6 +24,7 @@ int main(int argc, char** argv){
 	struct func funcs[] = {
 							{"Toggle Debug Mode", togDebug},
 							{"Set File Name", setFileName},
+							{"Set Unit Size", setUnitSize},
 							{NULL, NULL}
 						};
 	printf("Hello!\n");
@@ -48,4 +50,26 @@ void togDebug(){
 void setFileName(){
 
 	fgets(filename, 100, stdin);
+
+	if(debug){
+		printf("Debug: file name set to %s\n", filename);
+	}
+}
+
+void setUnitSize(){
+
+	int input;
+	scanf("%d",&input);
+    
+    if ((input==1) || (input==2) >> (input==4)){
+        
+        size = input;
+
+        if(debug){
+			printf("Debug: set size to %d\n", size);
+		}
+    }
+    else{
+        printf("Invalid input! Size was not changed");
+    }
 }
