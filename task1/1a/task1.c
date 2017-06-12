@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
+#include <math.h>
 
 #define OFF 0
 #define ON 1
@@ -15,8 +15,8 @@ void printByte(char byte);
 void togDebug();
 void setFileName();
 void setUnitSize();
-void quit();
 void displayFile();
+void quit();
 
 struct func{
   char *name;
@@ -36,8 +36,8 @@ int main(int argc, char** argv){
 							{"Toggle Debug Mode", togDebug},
 							{"Set File Name", setFileName},
 							{"Set Unit Size", setUnitSize},
-							{"Quit", quit},
 							{"File Display", displayFile},
+							{"Quit", quit},
 							{NULL, NULL}
 						};
 	
@@ -179,11 +179,11 @@ void quit(){
 
 void displayFile(){
 
-	//REMOVE ME********************
-	togDebug();
-	setFileName();
-	setUnitSize();
-	//REMOVE ME********************
+	// //REMOVE ME********************
+	// togDebug();
+	// setFileName();
+	// setUnitSize();
+	// //REMOVE ME********************
 
 
 	
@@ -201,10 +201,10 @@ void displayFile(){
 
 		int location;
 		int length;
-		char buf[6];
+		char buf[9+9];
 		printf("Plaese enter <location> <length>\n");
 		
-		fgets(buf, 6, stdin);
+		fgets(buf, 9+9, stdin);
 		sscanf(buf, "%x %d",&location, &length);
 
 		if(debug){
@@ -217,14 +217,16 @@ void displayFile(){
 		unsigned char* bytesToDisplay = (unsigned char*) malloc(size*length);
 
 		fseek(file, location, SEEK_SET);
-		// int i;
-		// for(i=0; i < (size*length); i += size){
-
 		fread(bytesToDisplay, size, length, file);
+		
+		// int k;
+		// for(k=0; k < length; k++){
+
+		// 	int readBytes = fread(bytesToDisplay, size, 1, file);
 		// 	if(readBytes < size)
 		// 		break;
 
-		// 	fseek(file, SEEK_CUR, size);
+		// 	fseek(file, size, SEEK_CUR);
 		// }
 
 		fclose(file);
@@ -250,15 +252,30 @@ void displayFile(){
 		printf("\n");
 
 
+		unsigned char nibbles[4];
 		printf("Decimal Representation:\n");
 		for(i=0; i < (size*length); i += 2){
 
-			
 
-			printf(" ");
+			nibbles[0] = (bytesToDisplay[i] & 0xf);
+			nibbles[1] = (bytesToDisplay[i] >> 4);
+			nibbles[2] = (bytesToDisplay[i+1] & 0xf);
+			nibbles[3] = (bytesToDisplay[i+1] >> 4);
+
+			int decNum = 0;
+			int j;
+			for(j=3; j >=0; j--){
+				// printf("nibble[%d] = %d\n", j, nibbles[j]);
+
+				decNum += (nibbles[j])*(pow(16, j));
+			}
+
+			printf("%d ", decNum);
 		}
 
 		printf("\n");
+
+		free(bytesToDisplay);
 
 	}
 }
