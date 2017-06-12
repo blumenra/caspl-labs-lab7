@@ -8,6 +8,7 @@ void flushStdin();
 void printFuncs();
 void printGlobalVariables();
 int getFuncRequest();
+void initializeBuffer();
 
 
 void togDebug();
@@ -26,6 +27,8 @@ struct func* data_pointer = NULL;
 int debug = OFF;
 
 int main(int argc, char** argv){
+
+	initializeBuffer(filename, 100);
 
 	struct func funcs[] = {
 							{"Toggle Debug Mode", togDebug},
@@ -61,6 +64,14 @@ int main(int argc, char** argv){
 	return 0;
 }
 
+void initializeBuffer(char buf[], int length){
+
+	int i;
+	for(i=0; i < length; i++){
+		buf[i] = 0;
+	}
+}
+
 void printFuncs(struct func funcs[]){
 
 	int i=0;
@@ -75,24 +86,7 @@ void printGlobalVariables(){
 
 	printf("Global variables:\n");
 	printf("\tUnit size: %d\n", size);
-
-	int i;
-	char tempFileName[100];
-	for(i=0; i < 100; i++){
-		tempFileName[i] = 0;
-	}
-
-	i=0;
-	while(filename[i] != 0){
-
-		tempFileName[i] = filename[i];
-		if(tempFileName[i] == '\n'){
-			
-			tempFileName[i] = 0;
-		}
-		i++;
-	}
-	printf("\tFile name: %s\n", tempFileName);
+	printf("\tFile name: %s\n", filename);
 	printf("\tBuffer address: %p\n", data_pointer);
 }
 
@@ -130,6 +124,15 @@ void setFileName(){
 	printf("Plaese enter a file name\n");
 	fgets(filename, 100, stdin);
 
+	//remove \n from filename
+	int i=0;
+	while(filename[i] != 0){
+		if(filename[i] == '\n'){
+			filename[i] = 0;
+			break;
+		}
+		i++;
+	}
 
 	if(debug){
 		printf("Debug: file name set to %s\n", filename);
