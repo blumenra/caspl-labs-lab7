@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #define OFF 0
 #define ON 1
@@ -9,12 +10,13 @@ void printFuncs();
 void printGlobalVariables();
 int getFuncRequest();
 void initializeBuffer();
-
+void printByte(char byte);
 
 void togDebug();
 void setFileName();
 void setUnitSize();
 void quit();
+void displayFile();
 
 struct func{
   char *name;
@@ -35,6 +37,7 @@ int main(int argc, char** argv){
 							{"Set File Name", setFileName},
 							{"Set Unit Size", setUnitSize},
 							{"Quit", quit},
+							{"File Display", displayFile},
 							{NULL, NULL}
 						};
 	
@@ -57,8 +60,6 @@ int main(int argc, char** argv){
 
 			funcs[funcIndex].fun();
 		}
-		
-
 	}
 
 	return 0;
@@ -91,11 +92,13 @@ void printGlobalVariables(){
 }
 
 int getFuncRequest(){
-
+	char buf[3];
+	fgets(buf, 3, stdin);
+	
 	int funcIndex;
-	scanf("%d",&funcIndex);
+	sscanf(buf, "%d",&funcIndex);
 
-	if((funcIndex < 0) || (funcIndex >= 4)){
+	if((funcIndex < 0) || (funcIndex >= 5)){
 		funcIndex = -1;
 	}
 
@@ -119,7 +122,7 @@ void togDebug(){
 
 void setFileName(){
 
-	flushStdin();
+	// flushStdin();
 
 	printf("Plaese enter a file name\n");
 	fgets(filename, 100, stdin);
@@ -147,9 +150,13 @@ void flushStdin(){
 
 void setUnitSize(){
 
-	int input;
+	
+	char buf[3];
 	printf("Plaese enter a unit size(1|2|4)\n");
-	scanf("%d",&input);
+	fgets(buf, 3, stdin);
+	
+	int input;
+	sscanf(buf, "%d", &input);
     
     if ((input==1) || (input==2) || (input==4)){
         
@@ -160,7 +167,7 @@ void setUnitSize(){
 		}
     }
     else{
-        printf("Invalid input! Size was not changed\n");
+        printf("%d is an invalid input! Size was not changed\n", input);
     }
 }
 
@@ -168,4 +175,102 @@ void quit(){
 
 	printf("quitting\n");
 	exit(0);
+}
+
+void displayFile(){
+
+	//REMOVE ME********************
+	togDebug();
+	setFileName();
+	setUnitSize();
+	//REMOVE ME********************
+
+
+	
+	if(filename == NULL){
+		fprintf(stderr, "File name is null!\n");
+	}
+	else{
+		FILE* file = fopen(filename, "r");
+
+		if(file == NULL){
+			
+			fprintf(stderr, "An error occured while attempting to open %s!\n", filename);
+			return;
+		}
+
+		int location;
+		int length;
+		char buf[6];
+		printf("Plaese enter <location> <length>\n");
+		
+		fgets(buf, 6, stdin);
+		sscanf(buf, "%x %d",&location, &length);
+
+		if(debug){
+
+			fprintf(stderr, "You enterd:\n");
+			fprintf(stderr, "\tLocation: %x\n", location);
+			fprintf(stderr, "\tLength: %d\n", length);
+		}
+
+		unsigned char* bytesToDisplay = (unsigned char*) malloc(size*length);
+
+		fseek(file, location, SEEK_SET);
+		// int i;
+		// for(i=0; i < (size*length); i += size){
+
+		fread(bytesToDisplay, size, length, file);
+		// 	if(readBytes < size)
+		// 		break;
+
+		// 	fseek(file, SEEK_CUR, size);
+		// }
+
+		fclose(file);
+
+		// printf("%x\n", bytesToDisplay[0]);
+		// printf("%x\n", bytesToDisplay[1]);
+		// printf("%x\n", bytesToDisplay[2]);
+		// printf("%x\n", bytesToDisplay[3]);
+		
+		int i;
+		printf("Hexadecimal Representation:\n");
+		for(i=0; i < (size*length); i += 2){
+
+			int j;
+			for(j=i+1; j >= i; j--){
+
+				printByte(bytesToDisplay[j]);
+			}
+
+			printf(" ");
+		}
+
+		printf("\n");
+
+
+		printf("Decimal Representation:\n");
+		for(i=0; i < (size*length); i += 2){
+
+			
+
+			printf(" ");
+		}
+
+		printf("\n");
+
+	}
+}
+
+void printByte(char byte){
+
+	unsigned char rightNibble = byte;
+	unsigned char leftNibble = byte;
+	
+	rightNibble = (rightNibble & 0xf);
+	leftNibble = (leftNibble >> 4);
+
+	printf("%x", leftNibble);
+	printf("%x", rightNibble);
 }
