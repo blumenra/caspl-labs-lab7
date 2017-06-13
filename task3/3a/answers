@@ -1,0 +1,23 @@
+task2 a:
+	q: Which function precedes main in execution ?
+	ans: _start
+
+	q: What is the virtual address to which this function is loaded (hint: use readelf -s)
+	ans: 8048080
+
+	q: Your task is to understand the reason for that.
+	ans: the address of _start is 0x8048080 while the entry point is 0x804808a.
+
+task2 b:
+	Use your hexeditplus program from task 1 to display the entry point of a file.
+
+	q: What are the values of location/length? How do you know that?
+	ans: location-18. that is because chezi is an elf32 file therefore the 4 bytes from 0x18
+		 are representing the enrty point of the file.
+		 length-1. that is because I set the unit size to 4 beforehand, so with length=1 i
+		 can get 4 bytes from 'location'
+
+	q: Use the edit functions from hexeditplus program to fix the chezi file, so that it behaves as expected:
+
+	ans: set the unit size to 4, and use function 6 to modify the file. enter location=18,
+	val=8048080 (which is the address of _start. basically, changed the entry point to the addrss of _start)
