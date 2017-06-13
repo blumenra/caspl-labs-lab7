@@ -16,6 +16,7 @@ void togDebug();
 void setFileName();
 void setUnitSize();
 void displayFile();
+void loadToMem();
 void quit();
 
 struct func{
@@ -25,7 +26,7 @@ struct func{
 
 int size = 0;
 char filename[100];
-struct func* data_pointer = NULL;
+unsigned char* data_pointer = NULL;
 int debug = OFF;
 
 int main(int argc, char** argv){
@@ -37,6 +38,7 @@ int main(int argc, char** argv){
 							{"Set File Name", setFileName},
 							{"Set Unit Size", setUnitSize},
 							{"File Display", displayFile},
+							{"Load Into Memory", loadToMem},
 							{"Quit", quit},
 							{NULL, NULL}
 						};
@@ -98,7 +100,7 @@ int getFuncRequest(){
 	int funcIndex;
 	sscanf(buf, "%d",&funcIndex);
 
-	if((funcIndex < 0) || (funcIndex >= 5)){
+	if((funcIndex < 0) || (funcIndex >= 6)){
 		funcIndex = -1;
 	}
 
@@ -172,6 +174,10 @@ void setUnitSize(){
 }
 
 void quit(){
+
+	if(data_pointer != NULL){
+		free(data_pointer);
+	}
 
 	printf("quitting\n");
 	exit(0);
@@ -290,4 +296,50 @@ void printByte(char byte){
 
 	printf("%x", leftNibble);
 	printf("%x", rightNibble);
+}
+
+void loadToMem(){
+
+	if(filename == NULL){
+		fprintf(stderr, "File name is null!\n");		
+	}
+	else{
+
+		FILE* file = fopen(filename, "r");
+
+		if(file == NULL){
+			
+			fprintf(stderr, "An error occured while attempting to open %s!\n", filename);
+			return;
+		}
+
+		int location;
+		int length;
+		char buf[9+9];
+		printf("Plaese enter <location> <length>\n");
+		
+		fgets(buf, 9+9, stdin);
+		sscanf(buf, "%x %d",&location, &length);
+
+		if(data_pointer != NULL){
+			free(data_pointer);
+		}
+
+		data_pointer = (unsigned char*) malloc(length);
+
+		if(debug){
+
+			fprintf(stderr, "\tfilename: %s\n", filename);
+			fprintf(stderr, "\tLocation: %x\n", location);
+			fprintf(stderr, "\tLength: %d\n", length);
+			fprintf(stderr, "\tData_pointer: %p\n", data_pointer);
+		}
+
+		fseek(file, location, SEEK_SET);
+		fread(data_pointer, 1, length, file);
+
+		printf("Loaded %d bytes into %p\n", length, data_pointer);
+
+		fclose(file);
+	}
 }
