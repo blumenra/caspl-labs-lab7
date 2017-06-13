@@ -18,6 +18,7 @@ void setUnitSize();
 void displayFile();
 void loadToMem();
 void saveToFile();
+void modifyFile();
 void quit();
 
 struct func{
@@ -41,6 +42,7 @@ int main(int argc, char** argv){
 							{"File Display", displayFile},
 							{"Load Into Memory", loadToMem},
 							{"Save Into File", saveToFile},
+							{"File Modify", modifyFile},
 							{"Quit", quit},
 							{NULL, NULL}
 						};
@@ -102,7 +104,7 @@ int getFuncRequest(){
 	int funcIndex;
 	sscanf(buf, "%d",&funcIndex);
 
-	if((funcIndex < 0) || (funcIndex >= 7)){
+	if((funcIndex < 0) || (funcIndex >= 8)){
 		funcIndex = -1;
 	}
 
@@ -404,6 +406,59 @@ void saveToFile(){
 		int written = fwrite(source_address, 1, length, file);
 
 		printf("Wrote %d bytes into %s from %p\n", written, filename, source_address);
+
+		fclose(file);
+	}
+}
+
+void modifyFile(){
+
+	if(filename == NULL){
+		fprintf(stderr, "File name is null!\n");		
+	}
+	else{
+
+		FILE* file = fopen(filename, "r+");
+
+		if(file == NULL){
+			
+			fprintf(stderr, "An error occured while attempting to open %s!\n", filename);
+			return;
+		}
+
+		int location;
+		int val;
+		char buf[9+9];
+		printf("Plaese enter <location> <val>\n");
+		
+		fgets(buf, 9+9, stdin);
+		sscanf(buf, "%x %x", &location, &val);
+		// sscanf(buf, "%x %x %d",source_address, &location, &length);
+
+		fseek(file, 0, SEEK_END);
+		// fseek(file, 0L, SEEK_END);
+		long fileSize = ftell(file);
+
+		if(debug){
+
+			fprintf(stderr, "\tfilename: %s\n", filename);
+			fprintf(stderr, "\tfile size: %d\n", (int) fileSize);
+			fprintf(stderr, "\tLocation: %x\n", location);
+			fprintf(stderr, "\tValue: %x\n", val);
+		}
+		
+		if(fileSize < location){
+			fprintf(stderr, "location (%d) exceeds file size (%d)!\n",
+								location,
+								(int) fileSize);
+			return;
+		}
+
+		fseek(file, location, SEEK_SET);
+		fwrite(&val, size, 1, file);
+
+		// printf("Wrote %d bytes into %s from %p\n", written, filename, source_address);
+		printf("The value %x was written into %s\n", val, filename);
 
 		fclose(file);
 	}
