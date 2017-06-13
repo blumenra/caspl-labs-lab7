@@ -1,0 +1,32 @@
+task3 a:
+	q: Find the entry for the function main in the symbol table of the ELF executable (readelf -s).
+	ans: 08048464
+
+	q: In that reference you will find both the size of the function and the function's virtual address and section number.
+	ans: address- 08048464, size-175
+
+	q: In the section table of the executable, find the entry for the function's section (readelf -S).
+	ans: entry of .text-080483b0
+
+	q: Find both the section's virtual address (Addr), and the section's file offset (Off).
+	ans: addr- 080483b0, offset- 0003b0
+
+	q: Use the above information to find the file offset of the function.
+	ans: (main_addr)-(.text _addr)+(.text_offset) = 8048464-80483b0+3b0 = 0x464
+
+
+
+	q: find the offset (file location) of the function main.
+	ans: 0x464
+	q: find the size of the function main.
+	ans: 175
+	q: use your hexeditplus program to display the content of that function on the screen.
+	ans: set file name to 'abc' and unit size to 1. choose option 3 (display) and enter location=464 (offset of main to abc relatively) and length=175 (main size)
+
+task3 b:
+	q: What are the first two machine instructions in function main, stated in assembly language? I.e. you need to manually dis-assemble these first two instructions.
+	ans: first instruction- push (push ebp)
+		 second instruction- mov (mov ebp, esp)
+		 the first is push because the first byte is 55- 50 for push and +5 for ebp
+		 the second is mov because the second byte is 89 (the next e5 represents ebp, esp by some encoding rules)
+
