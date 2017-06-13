@@ -378,29 +378,32 @@ void saveToFile(){
 			source_address = data_pointer;
 		}
 
+
+		fseek(file, 0, SEEK_END);
+		// fseek(file, 0L, SEEK_END);
+		long fileSize = ftell(file);
+		
 		if(debug){
 
 			fprintf(stderr, "\tfilename: %s\n", filename);
+			fprintf(stderr, "\tfile size: %d\n", (int) fileSize);
 			fprintf(stderr, "\tLocation: %x\n", target_location);
 			fprintf(stderr, "\tLength: %d\n", length);
 			fprintf(stderr, "\tData_pointer: %p\n", data_pointer);
 			fprintf(stderr, "\tSource_address: %p\n", source_address);
 		}
 
-		fseek(file, 0, SEEK_END);
-		// fseek(file, 0L, SEEK_END);
-		long fileSize = ftell(file);
 		if(fileSize < target_location){
-			fprintf(stderr, "Target-location(%d) exceeds file size(%d)!\n",
+			fprintf(stderr, "Target-location (%d) exceeds file size (%d)!\n",
 								target_location,
 								(int) fileSize);
 			return;
 		}
 
 		fseek(file, target_location, SEEK_SET);
-		fwrite(source_address, 1, length, file);
+		int written = fwrite(source_address, 1, length, file);
 
-		printf("Loaded %d bytes into %p\n", length, source_address);
+		printf("Wrote %d bytes into %s from %p\n", written, filename, source_address);
 
 		fclose(file);
 	}
