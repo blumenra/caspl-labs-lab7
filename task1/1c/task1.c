@@ -361,6 +361,7 @@ void saveToFile(){
 			return;
 		}
 
+		int source_address_int;
 		unsigned char* source_address;
 		int target_location;
 		int length;
@@ -368,9 +369,10 @@ void saveToFile(){
 		printf("Plaese enter <source-address> <target-location> <length>\n");
 		
 		fgets(buf, 9+9+9, stdin);
-		sscanf(buf, "%x %x %d",&source_address, &target_location, &length);
+		sscanf(buf, "%x %x %d",&source_address_int, &target_location, &length);
 		// sscanf(buf, "%x %x %d",source_address, &target_location, &length);
 
+		source_address = (unsigned char*) source_address_int;
 		if(source_address == 0){
 
 			source_address = data_pointer;
@@ -387,8 +389,11 @@ void saveToFile(){
 
 		fseek(file, 0, SEEK_END);
 		// fseek(file, 0L, SEEK_END);
-		if(ftell(file) < target_location){
-			fprintf(stderr, "Target-location exceeds file size!\n", filename);
+		long fileSize = ftell(file);
+		if(fileSize < target_location){
+			fprintf(stderr, "Target-location(%d) exceeds file size(%d)!\n",
+								target_location,
+								(int) fileSize);
 			return;
 		}
 
