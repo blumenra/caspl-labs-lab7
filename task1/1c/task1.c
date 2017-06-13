@@ -17,6 +17,7 @@ void setFileName();
 void setUnitSize();
 void displayFile();
 void loadToMem();
+void saveToFile();
 void quit();
 
 struct func{
@@ -39,6 +40,7 @@ int main(int argc, char** argv){
 							{"Set Unit Size", setUnitSize},
 							{"File Display", displayFile},
 							{"Load Into Memory", loadToMem},
+							{"Save Into File", saveToFile},
 							{"Quit", quit},
 							{NULL, NULL}
 						};
@@ -100,7 +102,7 @@ int getFuncRequest(){
 	int funcIndex;
 	sscanf(buf, "%d",&funcIndex);
 
-	if((funcIndex < 0) || (funcIndex >= 6)){
+	if((funcIndex < 0) || (funcIndex >= 7)){
 		funcIndex = -1;
 	}
 
@@ -339,6 +341,61 @@ void loadToMem(){
 		fread(data_pointer, 1, length, file);
 
 		printf("Loaded %d bytes into %p\n", length, data_pointer);
+
+		fclose(file);
+	}
+}
+
+void saveToFile(){
+
+	if(filename == NULL){
+		fprintf(stderr, "File name is null!\n");		
+	}
+	else{
+
+		FILE* file = fopen(filename, "r+");
+
+		if(file == NULL){
+			
+			fprintf(stderr, "An error occured while attempting to open %s!\n", filename);
+			return;
+		}
+
+		unsigned char* source_address;
+		int target_location;
+		int length;
+		char buf[9+9+9];
+		printf("Plaese enter <source-address> <target-location> <length>\n");
+		
+		fgets(buf, 9+9+9, stdin);
+		sscanf(buf, "%x %x %d",&source_address, &target_location, &length);
+		// sscanf(buf, "%x %x %d",source_address, &target_location, &length);
+
+		if(source_address == 0){
+
+			source_address = data_pointer;
+		}
+
+		if(debug){
+
+			fprintf(stderr, "\tfilename: %s\n", filename);
+			fprintf(stderr, "\tLocation: %x\n", target_location);
+			fprintf(stderr, "\tLength: %d\n", length);
+			fprintf(stderr, "\tData_pointer: %p\n", data_pointer);
+			fprintf(stderr, "\tSource_address: %p\n", source_address);
+		}
+
+		fseek(file, 0, SEEK_END);
+		// fseek(file, 0L, SEEK_END);
+		if(ftell(file) < target_location){
+			fprintf(stderr, "Target-location exceeds file size!\n", filename);
+			return;
+		}
+
+		fseek(file, target_location, SEEK_SET);
+		fwrite(source_address, 1, length, file);
+
+		printf("Loaded %d bytes into %p\n", length, source_address);
 
 		fclose(file);
 	}
