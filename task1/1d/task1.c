@@ -418,7 +418,7 @@ void modifyFile(){
 	}
 	else{
 
-		FILE* file = fopen(filename, "r+");
+		FILE* file = fopen(filename, "rb+");
 
 		if(file == NULL){
 			
